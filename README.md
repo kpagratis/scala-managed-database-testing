@@ -1,0 +1,1 @@
+# scala-managed-database-testing
