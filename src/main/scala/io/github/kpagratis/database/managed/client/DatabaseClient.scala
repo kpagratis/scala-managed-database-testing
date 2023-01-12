@@ -1,6 +1,6 @@
-package io.pagratis.database.managed.client
+package io.github.kpagratis.database.managed.client
 
-import io.pagratis.database.managed.config.User
+import io.github.kpagratis.database.managed.config.User
 import java.util.concurrent.{Callable, ScheduledThreadPoolExecutor}
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration

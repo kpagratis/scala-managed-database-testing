@@ -1,7 +1,7 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
-import io.pagratis.database.managed.config.{DatabaseDefinition, User}
-import io.pagratis.database.managed.deps.Test
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, User}
+import io.github.kpagratis.database.managed.deps.Test
 
 class DatabaseTest extends Test {
   test("Database::getDatabase") {

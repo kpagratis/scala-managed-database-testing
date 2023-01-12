@@ -1,6 +1,6 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
-import io.pagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition}
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition}
 
 trait ManagedDatabaseForTest[InnerClient] {
   def instanceDefinition(): InstanceDefinition

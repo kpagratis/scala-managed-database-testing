@@ -1,7 +1,7 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
-import io.pagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
-import io.pagratis.database.managed.deps.{JdbcMySQLClient, MySQL8_0_31, Test}
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
+import io.github.kpagratis.database.managed.deps.{JdbcMySQLClient, MySQL8_0_31, Test}
 import org.scalatest.BeforeAndAfterEach
 
 import java.sql.Connection

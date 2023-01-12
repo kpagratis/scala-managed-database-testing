@@ -1,6 +1,6 @@
-package io.pagratis.database.managed.config
+package io.github.kpagratis.database.managed.config
 
-import io.pagratis.database.managed.deps.Test
+import io.github.kpagratis.database.managed.deps.Test
 
 class DatabaseDefinitionTest extends Test {
   test("builder builds") {

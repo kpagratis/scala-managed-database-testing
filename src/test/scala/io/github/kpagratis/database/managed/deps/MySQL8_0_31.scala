@@ -1,6 +1,6 @@
-package io.pagratis.database.managed.deps
+package io.github.kpagratis.database.managed.deps
 
-import io.pagratis.database.managed.config.{SupportedInstanceType, User}
+import io.github.kpagratis.database.managed.config.{SupportedInstanceType, User}
 
 case object MySQL8_0_31 extends SupportedInstanceType {
   override val dockerImage: String = "mysql:8.0.31"

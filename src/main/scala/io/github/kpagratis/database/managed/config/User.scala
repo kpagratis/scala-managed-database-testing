@@ -1,3 +1,3 @@
-package io.pagratis.database.managed.config
+package io.github.kpagratis.database.managed.config
 
 case class User(name: String, password: String, privilege: String)

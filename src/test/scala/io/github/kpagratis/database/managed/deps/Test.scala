@@ -1,4 +1,4 @@
-package io.pagratis.database.managed.deps
+package io.github.kpagratis.database.managed.deps
 
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuite

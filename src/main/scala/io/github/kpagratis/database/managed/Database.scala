@@ -1,6 +1,6 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
-import io.pagratis.database.managed.config.{DatabaseDefinition, User}
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, User}
 
 import java.util.concurrent.ConcurrentHashMap
 

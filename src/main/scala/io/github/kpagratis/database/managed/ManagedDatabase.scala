@@ -1,10 +1,10 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DockerClientBuilder
-import io.pagratis.database.managed.ManagedDatabase.dockerClient
-import io.pagratis.database.managed.client.DatabaseClient
-import io.pagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition}
+import io.github.kpagratis.database.managed.ManagedDatabase.dockerClient
+import io.github.kpagratis.database.managed.client.DatabaseClient
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition}
 
 import java.util.concurrent.atomic.AtomicBoolean
 

@@ -1,9 +1,9 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.CreateContainerResponse
 import com.github.dockerjava.api.model.{HostConfig, PortBinding}
-import io.pagratis.database.managed.config.InstanceDefinition
+import io.github.kpagratis.database.managed.config.InstanceDefinition
 
 import java.net.ServerSocket
 import java.util.concurrent.ConcurrentHashMap

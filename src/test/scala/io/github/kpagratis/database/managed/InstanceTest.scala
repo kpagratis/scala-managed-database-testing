@@ -1,10 +1,10 @@
-package io.pagratis.database.managed
+package io.github.kpagratis.database.managed
 
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command._
 import com.github.dockerjava.api.model.{ExposedPort, HostConfig, InternetProtocol}
-import io.pagratis.database.managed.config.{InstanceDefinition, SupportedInstanceType}
-import io.pagratis.database.managed.deps.Test
+import io.github.kpagratis.database.managed.config.{InstanceDefinition, SupportedInstanceType}
+import io.github.kpagratis.database.managed.deps.Test
 import org.mockito.captor.{ArgCaptor, Captor}
 
 class InstanceTest extends Test {

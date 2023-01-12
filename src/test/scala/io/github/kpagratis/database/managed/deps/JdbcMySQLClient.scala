@@ -1,7 +1,7 @@
-package io.pagratis.database.managed.deps
+package io.github.kpagratis.database.managed.deps
 
-import io.pagratis.database.managed.client.DatabaseClient
-import io.pagratis.database.managed.config.{DatabaseDefinition, SupportedInstanceType, User}
+import io.github.kpagratis.database.managed.client.DatabaseClient
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, SupportedInstanceType, User}
 
 import java.sql.{Connection, DriverManager, ResultSet}
 import java.util.Properties

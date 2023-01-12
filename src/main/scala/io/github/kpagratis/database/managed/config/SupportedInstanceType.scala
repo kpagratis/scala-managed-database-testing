@@ -1,4 +1,4 @@
-package io.pagratis.database.managed.config
+package io.github.kpagratis.database.managed.config
 
 trait SupportedInstanceType {
   def dockerImage(): String
