@@ -1,15 +1,14 @@
 package io.github.kpagratis.database.managed.client
 
-import io.github.kpagratis.database.managed.config.User
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
+
 import java.util.concurrent.{Callable, ScheduledThreadPoolExecutor}
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
-trait DatabaseClient[InnerClient] {
+abstract class DatabaseClient[InnerClient](dockerInstancePort: Int, instanceDefinition: InstanceDefinition, databaseDefinition: DatabaseDefinition) {
   protected val scheduler = new ScheduledThreadPoolExecutor(4)
-
-  def dockerInstancePort(): Int
 
   def databaseInstanceConnectionCheck(): Unit
 
@@ -46,7 +45,5 @@ trait DatabaseClient[InnerClient] {
       case Failure(exception) => _retry()(fn)
     }
   }
-
-
 }
 

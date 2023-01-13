@@ -10,4 +10,6 @@ trait SupportedInstanceType {
   def getAllTablesQuery(databaseName: String): String
 
   def truncateTableQuery(tableName: String): String
+
+  def createDatabaseQuery(databaseName: String): String
 }

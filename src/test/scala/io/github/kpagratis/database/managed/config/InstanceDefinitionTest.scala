@@ -9,10 +9,12 @@ class InstanceDefinitionTest extends Test {
       .Builder(mockInstanceType)
       .withEnv(Seq("variable1", "variable2"))
       .withCmd(Seq("--param1", "--param2"))
+      .withRootPassword("password")
       .build
 
     built mustBe InstanceDefinition(
       mockInstanceType,
+      Some("password"),
       Seq("variable1", "variable2"),
       Seq("--param1", "--param2"))
   }

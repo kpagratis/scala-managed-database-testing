@@ -2,7 +2,7 @@ package io.github.kpagratis.database.managed.deps
 
 import io.github.kpagratis.database.managed.config.{SupportedInstanceType, User}
 
-case object MySQL8_0_31 extends SupportedInstanceType {
+case object MySQL_8_0_31 extends SupportedInstanceType {
   override val dockerImage: String = "mysql:8.0.31"
 
   override def createUserDDL(users: Seq[User]): Seq[String] = {
@@ -21,6 +21,7 @@ case object MySQL8_0_31 extends SupportedInstanceType {
     s"""SELECT table_name FROM information_schema.tables
        |WHERE table_type = 'BASE TABLE' AND table_schema='$databaseName';""".stripMargin
 
-  override def truncateTableQuery(tableName: String): String =
-    s"""TRUNCATE TABLE $tableName"""
+  override def truncateTableQuery(tableName: String): String = s"""TRUNCATE TABLE $tableName"""
+
+  override def createDatabaseQuery(databaseName: String): String = s"create database $databaseName"
 }

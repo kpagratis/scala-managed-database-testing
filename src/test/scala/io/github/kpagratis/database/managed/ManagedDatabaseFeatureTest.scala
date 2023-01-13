@@ -1,15 +1,16 @@
 package io.github.kpagratis.database.managed
 
 import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
-import io.github.kpagratis.database.managed.deps.{JdbcMySQLClient, MySQL8_0_31, Test}
+import io.github.kpagratis.database.managed.deps.{JdbcMySQLClient, MySQL_8_0_31, Test}
 import org.scalatest.BeforeAndAfterEach
 
 import java.sql.Connection
 
-class ManagedDatabaseFeatureTest extends Test with BeforeAndAfterEach with ManagedDatabaseForTest[Connection] {
+class ManagedDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connection, JdbcMySQLClient] {
   override val instanceDefinition: InstanceDefinition = InstanceDefinition
-    .Builder(MySQL8_0_31)
-    .withEnv(Seq("MYSQL_ALLOW_EMPTY_PASSWORD=1"))
+    .Builder(MySQL_8_0_31)
+    .withEnv(Seq("MYSQL_ROOT_PASSWORD=someSecret"))
+    .withRootPassword("someSecret")
     .withCmd(Seq("--character_set_server=utf8", "--collation_server=utf8_general_ci"))
     .build
   override val databaseDefinition: DatabaseDefinition = DatabaseDefinition
@@ -23,13 +24,12 @@ class ManagedDatabaseFeatureTest extends Test with BeforeAndAfterEach with Manag
       """insert into testing values(1, "Bob Smith")"""
     ))
     .build
-  override val managedDatabase: ManagedDatabase[Connection] = new ManagedDatabase[Connection](
-    instanceDefinition,
-    databaseDefinition,
-    dockerPort => {
-      new JdbcMySQLClient(dockerPort, instanceDefinition.instanceType, databaseDefinition)
-    }
-  )
+
+  override val managedDatabase: ManagedDatabase[Connection, JdbcMySQLClient] =
+    new ManagedDatabase[Connection, JdbcMySQLClient](
+      instanceDefinition,
+      databaseDefinition,
+    )
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()

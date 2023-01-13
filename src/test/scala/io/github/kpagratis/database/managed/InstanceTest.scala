@@ -66,11 +66,12 @@ class InstanceTest extends Test {
   test("Instance::getInstance") {
     val mockInstanceType = withMockedInstanceType()
 
-    val instanceDefinition = InstanceDefinition(
-      mockInstanceType,
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mockInstanceType)
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
+
 
     val (mockDockerClient, hostConfig) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
 
@@ -83,11 +84,12 @@ class InstanceTest extends Test {
   test("Instance::getInstance caches the instance") {
     val mockInstanceType = withMockedInstanceType()
 
-    val instanceDefinition = InstanceDefinition(
-      mockInstanceType,
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mockInstanceType)
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
+
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
     Instance.getInstance(mockDockerClient, instanceDefinition)
@@ -96,11 +98,11 @@ class InstanceTest extends Test {
   }
 
   test("Instance::startInstance") {
-    val instanceDefinition = InstanceDefinition(
-      mock[SupportedInstanceType],
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mock[SupportedInstanceType])
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
 
     val (mockDockerClient, hostConfig) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
 
@@ -117,11 +119,11 @@ class InstanceTest extends Test {
   }
 
   test("Instance::stopInstance after Instance::startInstance") {
-    val instanceDefinition = InstanceDefinition(
-      mock[SupportedInstanceType],
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mock[SupportedInstanceType])
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
 
@@ -134,11 +136,11 @@ class InstanceTest extends Test {
   }
 
   test("Instance::stopInstance without calling Instance::startInstance") {
-    val instanceDefinition = InstanceDefinition(
-      mock[SupportedInstanceType],
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mock[SupportedInstanceType])
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
 
     val mockDockerClient = mock[DockerClient]
     val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
@@ -148,11 +150,11 @@ class InstanceTest extends Test {
   }
 
   test("Instance::stopInstance when container hasn't been created") {
-    val instanceDefinition = InstanceDefinition(
-      mock[SupportedInstanceType],
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mock[SupportedInstanceType])
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
 
     val mockDockerClient = mock[DockerClient]
     val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
@@ -167,11 +169,11 @@ class InstanceTest extends Test {
   }
 
   test("Instance::stopInstance when container has failed to start") {
-    val instanceDefinition = InstanceDefinition(
-      mock[SupportedInstanceType],
-      env,
-      cmd
-    )
+    val instanceDefinition = InstanceDefinition.Builder(
+      mock[SupportedInstanceType])
+      .withEnv(env)
+      .withCmd(cmd)
+      .build
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = false)
     val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)

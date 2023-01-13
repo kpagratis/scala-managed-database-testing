@@ -1,7 +1,7 @@
 package io.github.kpagratis.database.managed.deps
 
 import io.github.kpagratis.database.managed.client.DatabaseClient
-import io.github.kpagratis.database.managed.config.{DatabaseDefinition, SupportedInstanceType, User}
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, SupportedInstanceType, User}
 
 import java.sql.{Connection, DriverManager, ResultSet}
 import java.util.Properties
@@ -10,7 +10,12 @@ import scala.concurrent.duration.DurationDouble
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Try
 
-class JdbcMySQLClient(override val dockerInstancePort: Int, instanceType: SupportedInstanceType, databaseDefinition: DatabaseDefinition) extends DatabaseClient[Connection] {
+class JdbcMySQLClient(
+                       dockerInstancePort: Int,
+                       instanceDefinition: InstanceDefinition,
+                       databaseDefinition: DatabaseDefinition
+                     ) extends DatabaseClient[Connection](dockerInstancePort, instanceDefinition, databaseDefinition) {
+
   private val baseUrl = s"jdbc:mysql://localhost:$dockerInstancePort"
   private val databaseUrl = s"$baseUrl/${databaseDefinition.databaseName}"
   private val driver = DriverManager.getDriver(baseUrl)
@@ -25,18 +30,19 @@ class JdbcMySQLClient(override val dockerInstancePort: Int, instanceType: Suppor
      */
     val props = new Properties()
     props.put("user", "root")
+    instanceDefinition.rootPassword.foreach(p => props.put("password", p))
     val rootClient = retry(100.milliseconds, 30.seconds)(() => driver.connect(baseUrl, props))
-    Try(rootClient.createStatement().execute(s"create database ${databaseDefinition.databaseName}")) match {
+    Try(rootClient.createStatement().execute(instanceDefinition.instanceType.createDatabaseQuery(databaseDefinition.databaseName))) match {
       case _ => rootClient.close()
     }
   }
 
   override def init(): Unit = {
     val connection = getRootClient()
-    instanceType
+    instanceDefinition.instanceType
       .createUserDDL(databaseDefinition.users)
       .foreach(connection.createStatement().execute)
-    instanceType
+    instanceDefinition.instanceType
       .grantUserPermissionDDL(databaseDefinition.users, databaseDefinition.databaseName)
       .foreach(connection.createStatement().execute)
 
@@ -47,23 +53,23 @@ class JdbcMySQLClient(override val dockerInstancePort: Int, instanceType: Suppor
     val connection = getRootClient()
     val resultSet: ResultSet = connection
       .createStatement()
-      .executeQuery(instanceType.getAllTablesQuery(databaseDefinition.databaseName))
+      .executeQuery(instanceDefinition.instanceType.getAllTablesQuery(databaseDefinition.databaseName))
     new Iterator[String] {
       override def hasNext: Boolean = resultSet.next()
 
       override def next(): String = resultSet.getString("table_name")
     }
       .toSeq
-      .map(instanceType.truncateTableQuery)
+      .map(instanceDefinition.instanceType.truncateTableQuery)
       .filterNot(preserveTables.contains)
       .foreach(connection.createStatement().execute)
   }
 
-  //TODO optional root password?
   def getRootClient(): Connection = {
     closeables.computeIfAbsent("root", _ => {
       val props = new Properties()
       props.put("user", "root")
+      instanceDefinition.rootPassword.foreach(p => props.put("password", p))
       retry(10.milliseconds, 30.seconds)(clientRunnable(props))
     })
   }
