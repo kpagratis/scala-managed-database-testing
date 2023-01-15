@@ -21,5 +21,15 @@ case object MySQL_8_0_31 extends SupportedInstanceType {
 
   override def truncateTableQuery(tableName: String): String = s"""TRUNCATE TABLE $tableName"""
 
-  override def createDatabaseQuery(databaseName: String): String = s"create database $databaseName"
+  override def createDatabaseQuery(databaseName: String): String = s"CREATE DATABASE $databaseName"
+
+  override def prepareTruncationSql: Seq[String] =
+    Seq(
+      "SET foreign_key_checks = 0"
+    )
+
+  override def cleanupTruncationSql: Seq[String] =
+    Seq(
+      "SET foreign_key_checks = 1"
+    )
 }

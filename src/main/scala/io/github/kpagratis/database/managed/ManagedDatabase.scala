@@ -8,6 +8,7 @@ import io.github.kpagratis.database.managed.config.{DatabaseDefinition, Instance
 
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.reflect.ClassTag
+import scala.util.{Failure, Success, Try}
 
 object ManagedDatabase{
   private val dockerClient: DockerClient = DockerClientBuilder.getInstance.build
@@ -55,15 +56,7 @@ final class ManagedDatabase[InnerClient, Client <: DatabaseClient[InnerClient]](
     started synchronized {
       if (starting.compareAndSet(false, true)) {
         instance = Instance.getInstance(dockerClient, instanceDefinition)
-        databaseClient = ct.runtimeClass.getConstructor(
-          classOf[Int],
-          classOf[InstanceDefinition],
-          classOf[DatabaseDefinition]
-        ).newInstance(
-          instance.dockerPort,
-          instanceDefinition,
-          databaseDefinition
-        ).asInstanceOf[Client]
+        databaseClient = createClientClass()
         database = Database.getDatabase(databaseDefinition, instance.dockerPort)
         databaseClient.databaseInstanceConnectionCheck()
         databaseClient.initDatabase()
@@ -71,6 +64,21 @@ final class ManagedDatabase[InnerClient, Client <: DatabaseClient[InnerClient]](
       }
     }
   }
+
+  private def createClientClass(): Client = {
+    Try(ct.runtimeClass.getConstructor(
+      classOf[Int],
+      classOf[InstanceDefinition],
+      classOf[DatabaseDefinition]
+    ).newInstance(
+      instance.dockerPort,
+      instanceDefinition,
+      databaseDefinition
+    ).asInstanceOf[Client]).transform(
+      s => Success(s),
+      e => Failure(new RuntimeException(s"There was a failure creating ${ct.runtimeClass.getTypeName}", e))
+    )
+  }.get
 
   def truncateTables(preserveTables: Seq[String] = Seq.empty[String]): Unit = {
     start()

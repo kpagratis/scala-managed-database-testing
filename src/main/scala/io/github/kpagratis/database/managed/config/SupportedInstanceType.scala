@@ -36,6 +36,19 @@ trait SupportedInstanceType {
   def truncateTableQuery(tableName: String): String
 
   /**
+   * SQL queries to run prior to truncating tables. This could be a query to disable foreign key checks
+   * @return SQL queries
+   */
+  def prepareTruncationSql: Seq[String]
+
+  /**
+   * SQL queries to run after truncating tables. This could be a query to re-enable foreign key checks
+   *
+   * @return SQL queries
+   */
+  def cleanupTruncationSql: Seq[String]
+
+  /**
    * @param databaseName Database name to create
    * @return A SQL query that creates a database named {{{databaseName}}}
    */
