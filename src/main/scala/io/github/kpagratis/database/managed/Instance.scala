@@ -8,6 +8,7 @@ import io.github.kpagratis.database.managed.config.InstanceDefinition
 import java.net.ServerSocket
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.{Try, Using}
 
 object Instance {
@@ -15,7 +16,7 @@ object Instance {
     new ConcurrentHashMap[InstanceDefinition, Instance]()
 
   sys.addShutdownHook {
-    instanceCache.values().forEach{instance =>
+    instanceCache.values().forEach { instance =>
       Try(instance.stopInstance(false))
     }
   }
@@ -51,9 +52,9 @@ final class Instance(dockerClient: DockerClient, dockerImage: String, val docker
         //TODO handle
         val createResponse: CreateContainerResponse = dockerClient
           .createContainerCmd(dockerImage)
-          .withEnv(env:_*)
+          .withEnv(env: _*)
           .withHostConfig(HostConfig.newHostConfig().withPortBindings(PortBinding.parse(s"$dockerPort:3306")))
-          .withCmd(cmd:_*)
+          .withCmd(cmd: _*)
           .exec()
         dockerId = createResponse.getId
         containerCreated.set(true)
@@ -71,14 +72,21 @@ final class Instance(dockerClient: DockerClient, dockerImage: String, val docker
     if (stateCheck && !containerCreated.get()) throw new IllegalStateException("Docker container not created")
     else if (stateCheck && !started.get()) throw new IllegalStateException("Instance has not been started")
     closed synchronized {
+      val inspectResult = dockerClient.inspectContainerCmd(dockerId).exec()
       //TODO what if inspect fails? Not there at all. handle
-      if (started.get() && dockerClient.inspectContainerCmd(dockerId).exec().getState.getRunning) {
+      if (started.get() && inspectResult.getState.getRunning) {
         //TODO handle
         dockerClient.stopContainerCmd(dockerId).exec()
       }
       //TODO handle
-      if(containerCreated.get()) {
+      if (containerCreated.get()) {
+        val mounts = inspectResult
+          .getMounts
+          .asScala
+          .map(_.getName)
+
         dockerClient.removeContainerCmd(dockerId).exec()
+        mounts.foreach(dockerClient.removeVolumeCmd(_).exec())
       }
       closed.set(true)
       containerCreated.set(false)
