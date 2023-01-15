@@ -7,7 +7,7 @@ import io.github.kpagratis.database.managed.client.DatabaseClient
 import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
 
 import java.util.concurrent.atomic.AtomicBoolean
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 
 object ManagedDatabase{
   private val dockerClient: DockerClient = DockerClientBuilder.getInstance.build

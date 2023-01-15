@@ -1,7 +1,7 @@
 package io.github.kpagratis.database.managed.deps
 
 import io.github.kpagratis.database.managed.client.DatabaseClient
-import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, SupportedInstanceType, User}
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
 
 import java.sql.{Connection, DriverManager, ResultSet}
 import java.util.Properties
@@ -51,18 +51,25 @@ class JdbcMySQLClient(
 
   override def truncateTables(preserveTables: Seq[String]): Unit = {
     val connection = getRootClient()
+    connection.setAutoCommit(false)
+    Try{
+      connection.prepareStatement("SET foreign_key_checks = 0").execute()
     val resultSet: ResultSet = connection
       .createStatement()
       .executeQuery(instanceDefinition.instanceType.getAllTablesQuery(databaseDefinition.databaseName))
     new Iterator[String] {
       override def hasNext: Boolean = resultSet.next()
 
-      override def next(): String = resultSet.getString("table_name")
+      override def next(): String = resultSet.getString(1)
     }
       .toSeq
       .map(instanceDefinition.instanceType.truncateTableQuery)
       .filterNot(preserveTables.contains)
       .foreach(connection.createStatement().execute)
+      connection.commit()
+    }.map{_ =>
+        connection.prepareStatement("set foreign_key_checks = 1").execute()
+    }.get
   }
 
   def getRootClient(): Connection = {

@@ -68,8 +68,8 @@ class InstanceTest extends Test {
 
     val instanceDefinition = InstanceDefinition.Builder(
       mockInstanceType)
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
 
@@ -86,8 +86,8 @@ class InstanceTest extends Test {
 
     val instanceDefinition = InstanceDefinition.Builder(
       mockInstanceType)
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
 
@@ -100,8 +100,8 @@ class InstanceTest extends Test {
   test("Instance::startInstance") {
     val instanceDefinition = InstanceDefinition.Builder(
       mock[SupportedInstanceType])
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
     val (mockDockerClient, hostConfig) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
@@ -121,8 +121,8 @@ class InstanceTest extends Test {
   test("Instance::stopInstance after Instance::startInstance") {
     val instanceDefinition = InstanceDefinition.Builder(
       mock[SupportedInstanceType])
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
@@ -138,8 +138,8 @@ class InstanceTest extends Test {
   test("Instance::stopInstance without calling Instance::startInstance") {
     val instanceDefinition = InstanceDefinition.Builder(
       mock[SupportedInstanceType])
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
     val mockDockerClient = mock[DockerClient]
@@ -152,8 +152,8 @@ class InstanceTest extends Test {
   test("Instance::stopInstance when container hasn't been created") {
     val instanceDefinition = InstanceDefinition.Builder(
       mock[SupportedInstanceType])
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
     val mockDockerClient = mock[DockerClient]
@@ -171,8 +171,8 @@ class InstanceTest extends Test {
   test("Instance::stopInstance when container has failed to start") {
     val instanceDefinition = InstanceDefinition.Builder(
       mock[SupportedInstanceType])
-      .withEnv(env)
-      .withCmd(cmd)
+      .withEnvironmentVariables(env)
+      .withArguments(cmd)
       .build
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = false)

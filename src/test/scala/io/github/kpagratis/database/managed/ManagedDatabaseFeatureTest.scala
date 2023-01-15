@@ -2,16 +2,15 @@ package io.github.kpagratis.database.managed
 
 import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
 import io.github.kpagratis.database.managed.deps.{JdbcMySQLClient, MySQL_8_0_31, Test}
-import org.scalatest.BeforeAndAfterEach
 
 import java.sql.Connection
 
 class ManagedDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connection, JdbcMySQLClient] {
   override val instanceDefinition: InstanceDefinition = InstanceDefinition
     .Builder(MySQL_8_0_31)
-    .withEnv(Seq("MYSQL_ROOT_PASSWORD=someSecret"))
+    .withEnvironmentVariables(Seq("MYSQL_ROOT_PASSWORD=someSecret"))
     .withRootPassword("someSecret")
-    .withCmd(Seq("--character_set_server=utf8", "--collation_server=utf8_general_ci"))
+    .withArguments(Seq("--character_set_server=utf8", "--collation_server=utf8_general_ci"))
     .build
   override val databaseDefinition: DatabaseDefinition = DatabaseDefinition
     .Builder("testDB")
@@ -36,7 +35,7 @@ class ManagedDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connec
     managedDatabase.truncateTables()
   }
 
-  test("lets see") {
+  test("users are configured correctly") {
     val roClient = managedDatabase.getClient("roUser")
     val rwClient = managedDatabase.getClient("rwUser")
     roClient.createStatement().execute("select 1 from dual")
@@ -49,7 +48,7 @@ class ManagedDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connec
     1 mustBe 1
   }
 
-  test("table should be empty") {
+  test("table should be empty because of truncation") {
     val roClient = managedDatabase.getClient("roUser")
     val result = roClient.createStatement().executeQuery("""SELECT COUNT(*) FROM testing""")
     result.next() mustBe true

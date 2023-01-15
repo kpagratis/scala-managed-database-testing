@@ -6,9 +6,9 @@ object InstanceDefinition {
                            env: Seq[String] = Seq.empty[String],
                            cmd: Seq[String] = Seq.empty[String]
                           ) {
-    def withEnv(env: Seq[String]): Builder = copy(env = env)
+    def withEnvironmentVariables(env: Seq[String]): Builder = copy(env = env)
 
-    def withCmd(cmd: Seq[String]): Builder = copy(cmd = cmd)
+    def withArguments(cmd: Seq[String]): Builder = copy(cmd = cmd)
 
     def withRootPassword(password: String): Builder = copy(rootPassword = Some(password))
 

@@ -7,8 +7,8 @@ class InstanceDefinitionTest extends Test {
     val mockInstanceType = mock[SupportedInstanceType]
     val built = InstanceDefinition
       .Builder(mockInstanceType)
-      .withEnv(Seq("variable1", "variable2"))
-      .withCmd(Seq("--param1", "--param2"))
+      .withEnvironmentVariables(Seq("variable1", "variable2"))
+      .withArguments(Seq("--param1", "--param2"))
       .withRootPassword("password")
       .build
 
