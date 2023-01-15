@@ -5,7 +5,7 @@ import io.github.kpagratis.database.managed.deps.{JdbcMySQLClient, MySQL_8_0_31,
 
 import java.sql.Connection
 
-class ManagedDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connection, JdbcMySQLClient] {
+class ManagedMySQLDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connection, JdbcMySQLClient] {
   override val instanceDefinition: InstanceDefinition = InstanceDefinition
     .Builder(MySQL_8_0_31)
     .withEnvironmentVariables(Seq("MYSQL_ROOT_PASSWORD=someSecret"))

@@ -12,6 +12,7 @@ class InstanceTest extends Test {
   private val cmd: Seq[String] = Seq("--parameter1", "--parameter2")
 
   private val aDockerImage = "aDockerImage"
+  private val aDefaultPort = 9999
   val aDockerGUID = "aDockerGUID"
 
   private def withCreateContainerMocked(instanceDefinition: InstanceDefinition, startSuccess: Boolean): (DockerClient, Captor[HostConfig]) = {
@@ -44,11 +45,20 @@ class InstanceTest extends Test {
     val mockContainerState = mock[InspectContainerResponse#ContainerState]
     val mockStopContainerCmd = mock[StopContainerCmd]
     val mockRemoveContainerCmd = mock[RemoveContainerCmd]
+    val mockMount = mock[InspectContainerResponse.Mount]
+    val mockRemoveVolumeCmd = mock[RemoveVolumeCmd]
+
     dockerClient.inspectContainerCmd(aDockerGUID) returns mockInspectContainerCmd
 
     mockInspectContainerCmd.exec() returns mockInspectContainerResponse
     mockInspectContainerResponse.getState returns mockContainerState
+    mockInspectContainerResponse.getMounts returns java.util.List.of(mockMount)
     mockContainerState.getRunning returns true
+
+    mockMount.getName returns "mountName"
+
+    dockerClient.removeVolumeCmd("mountName") returns mockRemoveVolumeCmd
+    mockRemoveVolumeCmd.exec().doesNothing()
 
     dockerClient.stopContainerCmd(aDockerGUID) returns mockStopContainerCmd
     mockStopContainerCmd.exec().doesNothing()
@@ -60,6 +70,7 @@ class InstanceTest extends Test {
   private def withMockedInstanceType(): SupportedInstanceType = {
     val mockInstanceType = mock[SupportedInstanceType]
     mockInstanceType.dockerImage() returns aDockerImage
+    mockInstanceType.defaultPort() returns aDefaultPort
     mockInstanceType
   }
 
@@ -76,7 +87,7 @@ class InstanceTest extends Test {
     val (mockDockerClient, hostConfig) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
 
     val instance = Instance.getInstance(mockDockerClient, instanceDefinition)
-    val value = hostConfig.value.getPortBindings.getBindings.get(new ExposedPort(3306, InternetProtocol.TCP))
+    val value = hostConfig.value.getPortBindings.getBindings.get(new ExposedPort(aDefaultPort, InternetProtocol.TCP))
     value mustNot be(null)
     value(0).toString mustBe s"${instance.dockerPort}"
   }
@@ -106,10 +117,10 @@ class InstanceTest extends Test {
 
     val (mockDockerClient, hostConfig) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
 
-    val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
+    val instance = new Instance(mockDockerClient, aDockerImage, aDefaultPort, 5678, instanceDefinition.env, instanceDefinition.cmd)
 
     instance.startInstance()
-    val value = hostConfig.value.getPortBindings.getBindings.get(new ExposedPort(3306, InternetProtocol.TCP))
+    val value = hostConfig.value.getPortBindings.getBindings.get(new ExposedPort(aDefaultPort, InternetProtocol.TCP))
     value mustNot be(null)
     value(0).toString mustBe s"${instance.dockerPort}"
 
@@ -127,7 +138,7 @@ class InstanceTest extends Test {
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = true)
 
-    val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
+    val instance = new Instance(mockDockerClient, aDockerImage, aDefaultPort, 5678, instanceDefinition.env, instanceDefinition.cmd)
 
     instance.startInstance()
     withContainerShutdownMocked(mockDockerClient)
@@ -143,7 +154,7 @@ class InstanceTest extends Test {
       .build
 
     val mockDockerClient = mock[DockerClient]
-    val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
+    val instance = new Instance(mockDockerClient, aDockerImage, aDefaultPort, 5678, instanceDefinition.env, instanceDefinition.cmd)
     intercept[IllegalStateException] {
       instance.stopInstance()
     }.getMessage mustBe "Docker container not created"
@@ -157,7 +168,7 @@ class InstanceTest extends Test {
       .build
 
     val mockDockerClient = mock[DockerClient]
-    val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
+    val instance = new Instance(mockDockerClient, aDockerImage, aDefaultPort, 5678, instanceDefinition.env, instanceDefinition.cmd)
 
     mockDockerClient.createContainerCmd(aDockerImage) throws new Exception("oops")
     intercept[Exception] {
@@ -176,7 +187,7 @@ class InstanceTest extends Test {
       .build
 
     val (mockDockerClient, _) = withCreateContainerMocked(instanceDefinition, startSuccess = false)
-    val instance = new Instance(mockDockerClient, aDockerImage, 1234, instanceDefinition.env, instanceDefinition.cmd)
+    val instance = new Instance(mockDockerClient, aDockerImage, aDefaultPort, 5678, instanceDefinition.env, instanceDefinition.cmd)
     intercept[Exception] {
       instance.startInstance()
     }

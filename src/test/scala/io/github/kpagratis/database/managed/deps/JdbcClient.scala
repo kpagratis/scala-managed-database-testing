@@ -47,14 +47,14 @@ abstract class JdbcClient(
     }
 
     val connection = getSuperUserClient()
+    databaseDefinition.databaseDDL.foreach(connection.prepareStatement(_).execute())
     instanceDefinition.instanceType
       .createUserDDL(databaseDefinition.users)
-      .foreach(connection.createStatement().execute)
+      .foreach(connection.prepareStatement(_).execute())
     instanceDefinition.instanceType
       .grantUserPermissionDDL(databaseDefinition.users, databaseDefinition.databaseName)
-      .foreach(connection.createStatement().execute)
+      .foreach(connection.prepareStatement(_).execute())
 
-    databaseDefinition.databaseDDL.foreach(connection.createStatement().execute)
   }
 
   override def truncateTables(preserveTables: Seq[String]): Unit = {
@@ -73,7 +73,7 @@ abstract class JdbcClient(
         .toSeq
         .map(instanceDefinition.instanceType.truncateTableQuery)
         .filterNot(preserveTables.contains)
-        .foreach(connection.createStatement().execute)
+        .foreach(connection.prepareStatement(_).execute())
       connection.commit()
     }.map{_ =>
       instanceDefinition.instanceType.cleanupTruncationSql.foreach(connection.prepareStatement(_).execute())

@@ -2,23 +2,25 @@ package io.github.kpagratis.database.managed.deps
 
 import io.github.kpagratis.database.managed.config.{SupportedInstanceType, User}
 
-case object MySQL_8_0_31 extends SupportedInstanceType {
-  override val dockerImage: String = "mysql:8.0.31"
-  override val defaultPort: Int = 3306
+case object Postgres_15_1 extends SupportedInstanceType {
+  override val dockerImage: String = "postgres:15.1"
+  override val defaultPort: Int = 5432
 
   override def createUserDDL(users: Seq[User]): Seq[String] =
     users.map { user =>
-      s"CREATE USER '${user.name}'@'%' IDENTIFIED BY '${user.password}';"
+      s"CREATE USER ${user.name} WITH PASSWORD '${user.password}';"
     }
 
   override def grantUserPermissionDDL(users: Seq[User], databaseName: String): Seq[String] =
     users.map { user =>
-      s"""GRANT ${user.privilege} ON $databaseName.* TO '${user.name}'@'%';"""
+      s"""GRANT ${user.privilege} ON ALL TABLES IN SCHEMA public TO ${user.name}"""
     }
 
   override def getAllTablesQuery(databaseName: String): String =
-    s"""SELECT table_name FROM information_schema.tables
-       |WHERE table_type = 'BASE TABLE' AND table_schema='$databaseName';""".stripMargin
+    s"""
+      |SELECT table_name FROM information_schema.tables
+      |WHERE table_type = 'BASE TABLE' and table_catalog = '$databaseName' AND table_schema = 'public'
+      |""".stripMargin
 
   override def truncateTableQuery(tableName: String): String = s"""TRUNCATE TABLE $tableName"""
 
@@ -26,11 +28,11 @@ case object MySQL_8_0_31 extends SupportedInstanceType {
 
   override def prepareTruncationSql: Seq[String] =
     Seq(
-      "SET foreign_key_checks = 0"
+      "SET session_replication_role = 'replica';"
     )
 
   override def cleanupTruncationSql: Seq[String] =
     Seq(
-      "SET foreign_key_checks = 1"
+      "SET session_replication_role = 'origin';"
     )
 }

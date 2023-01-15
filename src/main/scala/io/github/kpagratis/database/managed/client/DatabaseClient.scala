@@ -33,7 +33,8 @@ abstract class DatabaseClient[InnerClient](dockerInstancePort: Int, instanceDefi
     Try(scheduler.schedule(fn, delay.length, delay.unit).get()) match {
       case Success(connection) => connection
       //TODO need the exception eventually?
-      case Failure(exception) => _retry(delay)(fn)
+      case Failure(exception) =>
+        _retry(delay)(fn)
     }
   }
 
@@ -42,7 +43,8 @@ abstract class DatabaseClient[InnerClient](dockerInstancePort: Int, instanceDefi
     Try(scheduler.submit(fn).get()) match {
       case Success(connection) => connection
       //TODO need the exception eventually?
-      case Failure(exception) => _retry()(fn)
+      case Failure(exception) =>
+        _retry()(fn)
     }
   }
 }

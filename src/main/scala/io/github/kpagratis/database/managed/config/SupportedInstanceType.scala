@@ -3,6 +3,11 @@ package io.github.kpagratis.database.managed.config
 trait SupportedInstanceType {
 
   /**
+    * @return default port for this database type. eg: 3306
+   */
+  def defaultPort(): Int
+
+  /**
    * Docker image name. This will be used as the IMAGE parameter for `docker run`
    * @return image name. eg: mysql:8.0.31
    */

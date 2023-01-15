@@ -26,6 +26,7 @@ object Instance {
       val instance: Instance = new Instance(
         dockerClient,
         definition.instanceType.dockerImage(),
+        definition.instanceType.defaultPort(),
         freePort(),
         definition.env,
         definition.cmd
@@ -38,7 +39,7 @@ object Instance {
   private def freePort(): Int = Using(new ServerSocket(0))(_.getLocalPort).get
 }
 
-final class Instance(dockerClient: DockerClient, dockerImage: String, val dockerPort: Int, env: Seq[String], cmd: Seq[String]) {
+final class Instance(dockerClient: DockerClient, dockerImage: String, dockerDefaultPort: Int, val dockerPort: Int, env: Seq[String], cmd: Seq[String]) {
   private val closed = new AtomicBoolean(false)
   private val starting = new AtomicBoolean(false)
   private val started = new AtomicBoolean(false)
@@ -53,7 +54,7 @@ final class Instance(dockerClient: DockerClient, dockerImage: String, val docker
         val createResponse: CreateContainerResponse = dockerClient
           .createContainerCmd(dockerImage)
           .withEnv(env: _*)
-          .withHostConfig(HostConfig.newHostConfig().withPortBindings(PortBinding.parse(s"$dockerPort:3306")))
+          .withHostConfig(HostConfig.newHostConfig().withPortBindings(PortBinding.parse(s"$dockerPort:$dockerDefaultPort")))
           .withCmd(cmd: _*)
           .exec()
         dockerId = createResponse.getId
