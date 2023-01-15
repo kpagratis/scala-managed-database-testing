@@ -29,16 +29,16 @@ class JdbcMySQLClient(
      * Not adding this client to the client map above because this initial client is used to create the database schema
      */
     val props = new Properties()
-    props.put("user", "root")
-    instanceDefinition.rootPassword.foreach(p => props.put("password", p))
-    val rootClient = retry(100.milliseconds, 30.seconds)(() => driver.connect(baseUrl, props))
-    Try(rootClient.createStatement().execute(instanceDefinition.instanceType.createDatabaseQuery(databaseDefinition.databaseName))) match {
-      case _ => rootClient.close()
+    props.put("user", instanceDefinition.superUser.name)
+    instanceDefinition.superUser.password.foreach(p => props.put("password", p))
+    val superUserClient = retry(100.milliseconds, 30.seconds)(() => driver.connect(baseUrl, props))
+    Try(superUserClient.createStatement().execute(instanceDefinition.instanceType.createDatabaseQuery(databaseDefinition.databaseName))) match {
+      case _ => superUserClient.close()
     }
   }
 
-  override def init(): Unit = {
-    val connection = getRootClient()
+  override def initDatabase(): Unit = {
+    val connection = getSuperUserClient()
     instanceDefinition.instanceType
       .createUserDDL(databaseDefinition.users)
       .foreach(connection.createStatement().execute)
@@ -50,7 +50,7 @@ class JdbcMySQLClient(
   }
 
   override def truncateTables(preserveTables: Seq[String]): Unit = {
-    val connection = getRootClient()
+    val connection = getSuperUserClient()
     connection.setAutoCommit(false)
     Try{
       connection.prepareStatement("SET foreign_key_checks = 0").execute()
@@ -72,11 +72,11 @@ class JdbcMySQLClient(
     }.get
   }
 
-  def getRootClient(): Connection = {
+  def getSuperUserClient(): Connection = {
     closeables.computeIfAbsent("root", _ => {
       val props = new Properties()
-      props.put("user", "root")
-      instanceDefinition.rootPassword.foreach(p => props.put("password", p))
+      props.put("user", instanceDefinition.superUser.name)
+      instanceDefinition.superUser.password.foreach(p => props.put("password", p))
       retry(10.milliseconds, 30.seconds)(clientRunnable(props))
     })
   }

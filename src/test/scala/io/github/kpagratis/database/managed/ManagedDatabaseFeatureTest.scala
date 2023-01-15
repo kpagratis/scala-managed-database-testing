@@ -1,6 +1,6 @@
 package io.github.kpagratis.database.managed
 
-import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, User}
+import io.github.kpagratis.database.managed.config.{DatabaseDefinition, InstanceDefinition, SuperUser, User}
 import io.github.kpagratis.database.managed.deps.{JdbcMySQLClient, MySQL_8_0_31, Test}
 
 import java.sql.Connection
@@ -9,7 +9,7 @@ class ManagedDatabaseFeatureTest extends Test with ManagedDatabaseForTest[Connec
   override val instanceDefinition: InstanceDefinition = InstanceDefinition
     .Builder(MySQL_8_0_31)
     .withEnvironmentVariables(Seq("MYSQL_ROOT_PASSWORD=someSecret"))
-    .withRootPassword("someSecret")
+    .withSuperUser(SuperUser("root", Some("someSecret")))
     .withArguments(Seq("--character_set_server=utf8", "--collation_server=utf8_general_ci"))
     .build
   override val databaseDefinition: DatabaseDefinition = DatabaseDefinition

@@ -14,9 +14,9 @@ abstract class DatabaseClient[InnerClient](dockerInstancePort: Int, instanceDefi
 
   def truncateTables(preserveTables: Seq[String]): Unit
 
-  def init(): Unit
+  def initDatabase(): Unit
 
-  def getRootClient(): InnerClient
+  def getSuperUserClient(): InnerClient
 
   def getClient(user: User): InnerClient
 

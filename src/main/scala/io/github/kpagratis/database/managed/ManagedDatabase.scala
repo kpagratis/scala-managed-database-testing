@@ -25,9 +25,9 @@ final class ManagedDatabase[InnerClient, Client <: DatabaseClient[InnerClient]](
   @volatile private var instance: Instance = _
   @volatile private var databaseClient: Client = _
 
-  def getRootClient(): InnerClient = {
+  def getSuperUserClient(): InnerClient = {
     start()
-    databaseClient.getRootClient()
+    databaseClient.getSuperUserClient()
   }
 
   def getClient(userName: String): InnerClient = {
@@ -66,7 +66,7 @@ final class ManagedDatabase[InnerClient, Client <: DatabaseClient[InnerClient]](
         ).asInstanceOf[Client]
         database = Database.getDatabase(databaseDefinition, instance.dockerPort)
         databaseClient.databaseInstanceConnectionCheck()
-        databaseClient.init()
+        databaseClient.initDatabase()
         started.set(true)
       }
     }
