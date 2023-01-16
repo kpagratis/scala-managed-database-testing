@@ -8,7 +8,7 @@ case object MySQL_8_0_31 extends SupportedInstanceType {
 
   override def createUserDDL(users: Seq[User]): Seq[String] =
     users.map { user =>
-      s"CREATE USER '${user.name}'@'%' IDENTIFIED BY '${user.password}';"
+      s"CREATE USER '${user.name}'@'%' IDENTIFIED WITH mysql_native_password BY '${user.password}';"
     }
 
   override def grantUserPermissionDDL(users: Seq[User], databaseName: String): Seq[String] =

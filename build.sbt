@@ -15,5 +15,6 @@ libraryDependencies ++= Seq(
   "com.kohlschutter.junixsocket" % "junixsocket-native-common" % "2.6.1",
   "mysql" % "mysql-connector-java" % "8.0.30" % Test,
   "org.postgresql" % "postgresql" % "42.5.1" % Test,
-  "org.mockito" %% "mockito-scala-scalatest" % "1.17.12" % Test
+  "org.mockito" %% "mockito-scala-scalatest" % "1.17.12" % Test,
+  "com.twitter" %% "finagle-mysql" % "22.12.0" % Test
 )
